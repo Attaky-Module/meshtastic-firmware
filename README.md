@@ -1,3 +1,59 @@
+<div align="center">
+
+  <a href="https://attaky.com">
+    <img alt="Attaky" src="./.github/attaky-logo-horizontal.png" width="32%" />
+  </a>
+
+  <h2>Meshtastic firmware for the Attaky Mesh series</h2>
+
+  <p>
+    <img src="https://img.shields.io/badge/board-ATK--MeshCombo--V1-C0252B?style=flat-square" alt="ATK-MeshCombo-V1" />
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-GPL_3.0-blue?style=flat-square" alt="License" /></a>
+    <a href="https://discord.attaky.com"><img src="https://img.shields.io/badge/Discord-attaky-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord" /></a>
+  </p>
+
+  <a href="https://attaky.com">Attaky home</a>
+  &nbsp;·&nbsp;
+  <a href="https://discord.attaky.com">Discord</a>
+
+</div>
+
+> This repository is a fork of [Meshtastic firmware](https://github.com/meshtastic/firmware),
+> last modified by Attaky on **2026-01-16** from upstream **`v2.7.3.cf574c7`**,
+> to add support for the **Attaky Mesh series** of off-grid LoRa devices.
+> Inherits Meshtastic's **GPL-3.0** license.
+
+## Attaky Mesh series
+
+Off-grid LoRa mesh communication. The fork supports these Attaky bundles, which share the same underlying ATK-MeshCombo-V1 board:
+
+- **Mesh Pocket 1.0**
+- **Mesh Deck 1.0** *(flagship — pocket form with integrated keyboard)*
+- **Mesh Station 1.0**
+
+## What this fork adds on top of Meshtastic
+
+- **ATK-MeshCombo-V1 board support** — board definition, variant, peripheral integration (320×240 TFT + touch + I2C keyboard)
+- **Battery gauge init deferred until after i2c scan** — the gauge is an optional I2C module on the expansion bus, so init runs after the scanner has detected what's on the bus
+- **Paired Attaky fork of `meshtastic-device-ui`** — the `lib_deps` for the `atk_meshcombo_v1_tft` env pulls [`Attaky-Module/meshtastic-device-ui`](https://github.com/Attaky-Module/meshtastic-device-ui), which carries Attaky's I2C keyboard driver. No manual file-overlay step needed.
+
+Upstream Meshtastic features (protocol, mesh, encryption, etc.) are unchanged.
+
+## Build & flash
+
+1. Set up PlatformIO per the upstream [Meshtastic build docs](https://meshtastic.org/docs/development/firmware/build).
+2. Choose environment — `atk_meshcombo_v1_tft` (with 320×240 TFT + touch + I2C keyboard) or `atk_meshcombo_v1` (headless).
+3. `pio run -e atk_meshcombo_v1_tft -t upload`
+
+## Support
+
+- **Mesh series / this fork** — Attaky [Discord](https://discord.attaky.com)
+- **Meshtastic protocol / upstream firmware** — file at [`meshtastic/firmware`](https://github.com/meshtastic/firmware/issues)
+
+---
+
+# ↓ Upstream Meshtastic README ↓
+
 <div align="center" markdown="1">
 
 <img src=".github/meshtastic_logo.png" alt="Meshtastic Logo" width="80"/>
