@@ -499,14 +499,14 @@ void setup()
     pinMode(AQ_SET_PIN, OUTPUT);
     digitalWrite(AQ_SET_PIN, HIGH);
 #endif
-
+#ifndef  ATK_BATTERY_EN
     // Currently only the tbeam has a PMU
     // PMU initialization needs to be placed before i2c scanning
     power = new Power();
     power->setStatusHandler(powerStatus);
     powerStatus->observe(&power->newStatus);
     power->setup(); // Must be after status handler is installed, so that handler gets notified of the initial configuration
-
+#endif
 #if !MESHTASTIC_EXCLUDE_I2C
     // We need to scan here to decide if we have a screen for nodeDB.init() and because power has been applied to
     // accessories
@@ -685,7 +685,22 @@ void setup()
 
     i2cScanner.reset();
 #endif
-
+#ifdef  ATK_BATTERY_EN
+    // ATK board: the battery fuel gauge is an optional I2C module on
+    // the expansion bus, not a power-management IC. Init Power AFTER
+    // the i2c scan so Power::setup() can wire the right driver based
+    // on what the scanner actually detected — different Mesh bundles
+    // may or may not ship the gauge.
+    //
+    // The upstream comment "needs to be placed before i2c scanning"
+    // (preserved in the #ifndef ATK_BATTERY_EN block above) applies
+    // to tbeam-class AXP192 PMUs that gate i2c bus power; ATK does
+    // not have that constraint.
+    power = new Power();
+    power->setStatusHandler(powerStatus);
+    powerStatus->observe(&power->newStatus);
+    power->setup(); // Must be after status handler is installed, so that handler gets notified of the initial configuration
+#endif
 #ifdef HAS_SDCARD
     setupSDCard();
 #endif
