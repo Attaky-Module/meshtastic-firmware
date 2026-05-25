@@ -19,13 +19,13 @@
 </div>
 
 > This repository is a fork of [Meshtastic firmware](https://github.com/meshtastic/firmware),
-> last modified by Attaky on **2026-01-16** from upstream **`v2.7.3.cf574c7`**,
+> last modified by Attaky on **2026-05-25** from upstream **`v2.7.24.472b14c`**,
 > to add support for the **Attaky Mesh series** of off-grid LoRa devices.
 > Inherits Meshtastic's **GPL-3.0** license.
 
-## Attaky Mesh series
+## Compatible devices
 
-Off-grid LoRa mesh communication. The fork supports these Attaky bundles, which share the same underlying ATK-MeshCombo-V1 board:
+Off-grid LoRa mesh communication. This firmware supports the **Attaky Mesh series** bundles:
 
 - **Mesh Pocket 1.0**
 - **Mesh Deck 1.0** *(flagship — pocket form with integrated keyboard)*
@@ -33,17 +33,32 @@ Off-grid LoRa mesh communication. The fork supports these Attaky bundles, which 
 
 ## What this fork adds on top of Meshtastic
 
-- **ATK-MeshCombo-V1 board support** — board definition, variant, peripheral integration (320×240 TFT + touch + I2C keyboard)
-- **Battery gauge init deferred until after i2c scan** — the gauge is an optional I2C module on the expansion bus, so init runs after the scanner has detected what's on the bus
-- **Paired Attaky fork of `meshtastic-device-ui`** — the `lib_deps` for the `atk_meshcombo_v1_tft` env pulls [`Attaky-Module/meshtastic-device-ui`](https://github.com/Attaky-Module/meshtastic-device-ui), which carries Attaky's I2C keyboard driver. No manual file-overlay step needed.
+- **ATK-MeshCombo-V1 build target** — PlatformIO target definition + variant + peripheral integration (320×240 TFT + capacitive touch + I²C keyboard)
+- **D-pad and shoulder keys** — always-active polling on the host I/O aggregator (driver lives in the paired `meshtastic-device-ui` fork). `BTN_L1` / `BTN_R2` map to LVGL focus prev/next for tab-style navigation; `POWER_BTN` stays with the PMIC long-press path and is not surfaced as an LVGL key.
+- **Detachable I²C keyboard** — 5×5 matrix split across two halves on the bottom-keyboard module. Only initialised when the module is attached; matrix scan is focus-gated to LVGL textareas with an adaptive presence-test for low idle bus usage.
+- **Battery gauge init deferred until after i2c scan** — the gauge is an optional I²C module on the expansion bus, so init runs after the scanner has detected what's on the bus.
+- **Paired Attaky fork of `meshtastic-device-ui`** — the `lib_deps` for the `atk_meshcombo_v1_tft` env pulls [`Attaky-Module/meshtastic-device-ui`](https://github.com/Attaky-Module/meshtastic-device-ui), which carries the input drivers above. No manual file-overlay step needed.
 
 Upstream Meshtastic features (protocol, mesh, encryption, etc.) are unchanged.
 
 ## Build & flash
 
-1. Set up PlatformIO per the upstream [Meshtastic build docs](https://meshtastic.org/docs/development/firmware/build).
-2. Choose environment — `atk_meshcombo_v1_tft` (with 320×240 TFT + touch + I2C keyboard) or `atk_meshcombo_v1` (headless).
-3. `pio run -e atk_meshcombo_v1_tft -t upload`
+This is a fork — clone **this** repository (not the upstream `meshtastic/firmware`) to get the ATK-MeshCombo-V1 build target + paired device-ui pin.
+
+1. Clone this fork:
+   ```sh
+   git clone https://github.com/Attaky-Module/meshtastic-firmware.git
+   cd meshtastic-firmware
+   ```
+2. Set up PlatformIO per the upstream [Meshtastic build docs](https://meshtastic.org/docs/development/firmware/build) (toolchain, dependencies).
+3. Build the Attaky environment:
+   - `pio run -e atk_meshcombo_v1_tft` — full TFT + touch + I²C keyboard build (Mesh Deck / Pocket / Station)
+   - `pio run -e atk_meshcombo_v1` — headless (no TFT)
+4. Flash to a connected board:
+   ```sh
+   pio run -e atk_meshcombo_v1_tft -t upload
+   ```
+   The on-board USB-serial bridge uses `upload_speed = 460800` (set in the variant `platformio.ini`).
 
 ## Support
 
